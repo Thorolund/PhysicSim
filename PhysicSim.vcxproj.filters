@@ -13,10 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Файлы заголовков\Logger">
+      <UniqueIdentifier>{1a60fc41-3d02-4d95-a1d5-47d5e6917f10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Logger">
+      <UniqueIdentifier>{43707e67-c557-46f1-9fca-1ae0b1bca829}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="logger.cpp">
+      <Filter>Исходные файлы\Logger</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="logger.h">
+      <Filter>Файлы заголовков\Logger</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

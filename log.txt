@@ -1,1 +1,1 @@
-main (load sdl): sdl load error - check lib
+vec::division (): division by zero(0) - 

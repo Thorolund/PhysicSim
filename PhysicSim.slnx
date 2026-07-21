@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="PhysicSim.vcxproj" />
+  <Project Path="PhysicSim.vcxproj" Id="7b427c80-85b2-44c9-a47d-8ce31170540f" />
 </Solution>

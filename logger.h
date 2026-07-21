@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-void log(
+void log_message(
 	std::string func_name,
 	std::string type_err,
 	std::string concrete = "global",

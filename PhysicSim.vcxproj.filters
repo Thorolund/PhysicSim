@@ -19,6 +19,12 @@
     <Filter Include="Исходные файлы\Logger">
       <UniqueIdentifier>{43707e67-c557-46f1-9fca-1ae0b1bca829}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\Math">
+      <UniqueIdentifier>{f6819af2-12f2-405b-a13a-e1d953317049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Math">
+      <UniqueIdentifier>{8299245e-060c-4ffb-a940-19ca0b20f1d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -27,10 +33,16 @@
     <ClCompile Include="logger.cpp">
       <Filter>Исходные файлы\Logger</Filter>
     </ClCompile>
+    <ClCompile Include="vec.cpp">
+      <Filter>Исходные файлы\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logger.h">
       <Filter>Файлы заголовков\Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="vec.h">
+      <Filter>Файлы заголовков\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

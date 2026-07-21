@@ -1,6 +1,6 @@
 #include "logger.h"
 
-void log(
+void log_message(
 		std::string func_name,
 		std::string type_err,
 		std::string concrete,

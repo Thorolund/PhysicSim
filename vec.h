@@ -36,6 +36,12 @@ public:
 	/// <param name="other_vec">Второй вектор.</param>
 	/// <returns>Скалярное произведение (x*x2 + y*y2).</returns>
 	float operator*(vec other_vec) const;
+	/// <param name="other_vec">Второй вектор.</param>
+	/// <returns>Сравнение по координатам.</returns>
+	bool operator==(vec other_vec) const;
+	/// <param name="other_vec">Второй вектор.</param>
+	/// <returns>Сравнение по координатам.</returns>
+	bool operator!=(vec other_vec) const;
 
 	/// <returns>Кэшированная длина (вычислена в конструкторе).</returns>
 	float len() const;

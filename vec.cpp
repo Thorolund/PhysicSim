@@ -46,6 +46,14 @@ float vec::operator*(vec other_vec) const {
 	return x*other_vec.x + y*other_vec.y;
 }
 
+bool vec::operator==(vec other_vec) const {
+	return (other_vec.x == x) && (other_vec.y == y);
+}
+
+bool vec::operator!=(vec other_vec) const {
+	return (other_vec.x != x) || (other_vec.y != y);
+}
+
 float vec::len() const {
 	return self_len;
 }

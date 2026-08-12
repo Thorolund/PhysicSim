@@ -4,9 +4,10 @@
 #include <vector>
 
 struct PhysPoint {
-public:
-	vec pos1, pos2, pos3;
-	std::vector<vec> forces;
-	PhysPoint(vec prev_pos_, vec pos_);
-	void clearForces();
+	vec pos_2, pos_1, pos0;
+	float mass;
+	bool stabled = false;
+	std::vector<vec> accelerations;
+	PhysPoint(vec prev_pos_, vec pos_, float mass_, bool stabled_);
+	void clearAccelerations();
 };

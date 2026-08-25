@@ -1,1 +1,1 @@
-vec::division (): division by zero(0) - 
+PhysPoint::PhysPoint (definition position): stabled point can't move - check ui

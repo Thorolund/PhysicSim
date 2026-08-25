@@ -48,6 +48,9 @@
     <ClCompile Include="physedge.cpp">
       <Filter>Исходные файлы\Physic</Filter>
     </ClCompile>
+    <ClCompile Include="physoperations.cpp">
+      <Filter>Исходные файлы\Physic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logger.h">
@@ -59,10 +62,13 @@
     <ClInclude Include="physpoint.h">
       <Filter>Файлы заголовков\Physic</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicConst.h">
+    <ClInclude Include="physedge.h">
       <Filter>Файлы заголовков\Physic</Filter>
     </ClInclude>
-    <ClInclude Include="physedge.h">
+    <ClInclude Include="physoperations.h">
+      <Filter>Файлы заголовков\Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysConst.h">
       <Filter>Файлы заголовков\Physic</Filter>
     </ClInclude>
   </ItemGroup>

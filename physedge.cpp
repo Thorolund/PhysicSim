@@ -3,13 +3,13 @@
 PhysEdge::PhysEdge(PhysPoint* A_, PhysPoint* B_) {
 	Aptr = A_;
 	Bptr = B_;
-	vecAB = (Bptr->pos0) - (Aptr->pos0);
+	vecAB = (Bptr->npos) - (Aptr->npos);
 	base_len = vecAB.len();
 	current_len = base_len;
 }
 
 void PhysEdge::update() {
-	vecAB = (Bptr->pos0) - (Aptr->pos0);
+	vecAB = (Bptr->npos) - (Aptr->npos);
 	current_len = vecAB.len();
 }
 
@@ -18,14 +18,14 @@ void PhysEdge::shrink() {
 		return;
 	}
 
-	float diff_len = base_len - current_len;
+	float diff_len = (base_len - current_len)*relaxation;
 	if (diff_len == 0) {
 		return;
 	}
 
 	float total_mass = Aptr->mass + Bptr->mass;
-	float k_a_shrink;
-	float k_b_shrink;
+	float k_a_shrink = 0;
+	float k_b_shrink = 0;
 	if ((!Aptr->stabled) && (!Bptr->stabled)) {
 		k_a_shrink = (Bptr->mass) / total_mass;
 		k_b_shrink = (Aptr->mass) / total_mass;
@@ -40,6 +40,6 @@ void PhysEdge::shrink() {
 	vec dA = vecAB.len1() * diff_len * k_a_shrink;
 	vec dB = vecAB.len1() * diff_len * k_b_shrink;
 
-	Aptr->pos0 = Aptr->pos0 - dA;
-	Bptr->pos0 = Bptr->pos0 + dB;
+	Aptr->npos = Aptr->npos - dA;
+	Bptr->npos = Bptr->npos + dB;
 }

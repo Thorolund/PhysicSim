@@ -25,12 +25,6 @@
     <Filter Include="Исходные файлы\Math">
       <UniqueIdentifier>{8299245e-060c-4ffb-a940-19ca0b20f1d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\Physic">
-      <UniqueIdentifier>{16587374-bc90-4b0d-a167-0a685fd24b6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\Physic">
-      <UniqueIdentifier>{eebe9714-01e7-4ed9-8a9c-705787015b73}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -42,15 +36,6 @@
     <ClCompile Include="vec.cpp">
       <Filter>Исходные файлы\Math</Filter>
     </ClCompile>
-    <ClCompile Include="physpoint.cpp">
-      <Filter>Исходные файлы\Physic</Filter>
-    </ClCompile>
-    <ClCompile Include="physedge.cpp">
-      <Filter>Исходные файлы\Physic</Filter>
-    </ClCompile>
-    <ClCompile Include="physoperations.cpp">
-      <Filter>Исходные файлы\Physic</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logger.h">
@@ -58,18 +43,6 @@
     </ClInclude>
     <ClInclude Include="vec.h">
       <Filter>Файлы заголовков\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="physpoint.h">
-      <Filter>Файлы заголовков\Physic</Filter>
-    </ClInclude>
-    <ClInclude Include="physedge.h">
-      <Filter>Файлы заголовков\Physic</Filter>
-    </ClInclude>
-    <ClInclude Include="physoperations.h">
-      <Filter>Файлы заголовков\Physic</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysConst.h">
-      <Filter>Файлы заголовков\Physic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

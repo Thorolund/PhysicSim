@@ -1,217 +1,307 @@
 #include <SDL.h>
+#include <SDL2_gfxPrimitives.h>
 #include <box2d.h>
-#include <iostream>
 #include <vector>
-#include <string>
+#include <cmath>
+#include <iostream>
 
-// Константы для преобразования физических координат в пиксели
-const float SCALE = 30.0f; // 1 метр = 30 пикселей
+/**
+ * Простые функции для отрисовки Box2D тел с помощью SDL2 и SDL2_gfx
+ */
 
-// Структура для хранения данных отрисовки
-struct DrawData {
-    float x, y;          // позиция в метрах
-    float angle;         // угол поворота
-    float width, height; // размеры в метрах
-    SDL_Color color;
+ // Константа: пикселей на метр
+const float PPM = 30.0f;
+
+// Структура цвета (RGBA)
+struct Color {
+    uint8_t r, g, b, a;
 };
 
-// Функция для преобразования Box2D координат в SDL координаты (центр окна)
-SDL_FPoint Box2DToSDL(float x, float y, int windowWidth, int windowHeight) {
-    return {
-        x * SCALE + windowWidth / 2.0f,
-        -y * SCALE + windowHeight / 2.0f  // инвертируем Y, так как SDL считает Y вниз
-    };
+// Предопределенные цвета
+const Color COLOR_WHITE = { 255, 255, 255, 255 };
+const Color COLOR_GREEN = { 0, 255, 0, 255 };
+const Color COLOR_RED = { 255, 0, 0, 255 };
+const Color COLOR_BLUE = { 0, 100, 255, 255 };
+const Color COLOR_GRAY = { 150, 150, 150, 255 };
+const Color COLOR_YELLOW = { 255, 200, 0, 255 };
+
+/**
+ * Преобразует координаты Box2D (метры) в экранные координаты (пиксели)
+ */
+void WorldToScreen(float worldX, float worldY, int& screenX, int& screenY) {
+    screenX = static_cast<int>(worldX * PPM + 400);  // +400 для центрирования
+    screenY = static_cast<int>(300 - worldY * PPM);   // 300 для центрирования
 }
 
+/**
+ * Отрисовывает круглую фикстуру (контур)
+ *
+ * @param renderer SDL_Renderer
+ * @param body Физическое тело
+ * @param fixture Фикстура
+ * @param color Цвет
+ */
+void DrawCircle(SDL_Renderer* renderer, b2Body* body, b2Fixture* fixture, Color color) {
+    // Получаем форму
+    b2CircleShape* circle = (b2CircleShape*)fixture->GetShape();
+
+    // Позиция тела
+    b2Vec2 pos = body->GetPosition();
+
+    // Смещение круга (обычно (0,0), но может быть сдвинут)
+    b2Vec2 offset = circle->m_p;
+
+    // Мировая позиция центра круга
+    float worldX = pos.x + offset.x;
+    float worldY = pos.y + offset.y;
+
+    // Преобразуем в пиксели
+    int screenX, screenY;
+    WorldToScreen(worldX, worldY, screenX, screenY);
+
+    // Радиус в пикселях
+    int radius = (int)(circle->m_radius * PPM);
+    if (radius < 1) radius = 1;
+
+    // Рисуем окружность (только контур) - ИСПРАВЛЕНО
+    circleRGBA(renderer, screenX, screenY, radius,
+        color.r, color.g, color.b, color.a);
+}
+
+/**
+ * Отрисовывает полигональную фикстуру (контур)
+ *
+ * @param renderer SDL_Renderer
+ * @param body Физическое тело
+ * @param fixture Фикстура
+ * @param color Цвет
+ */
+void DrawPolygon(SDL_Renderer* renderer, b2Body* body, b2Fixture* fixture, Color color) {
+    // Получаем форму
+    b2PolygonShape* polygon = (b2PolygonShape*)fixture->GetShape();
+
+    // Количество вершин
+    int count = polygon->m_count;
+    if (count < 3) return;
+
+    // Позиция и угол тела
+    b2Vec2 pos = body->GetPosition();
+    float angle = body->GetAngle();
+
+    // Массивы для точек
+    std::vector<Sint16> pointsX(count);
+    std::vector<Sint16> pointsY(count);
+
+    // Преобразуем вершины
+    for (int i = 0; i < count; i++) {
+        // Вершина в локальных координатах
+        b2Vec2 v = polygon->m_vertices[i];
+
+        // Поворачиваем на угол тела
+        float rotatedX = v.x * cos(angle) - v.y * sin(angle);
+        float rotatedY = v.x * sin(angle) + v.y * cos(angle);
+
+        // Смещаем на позицию тела
+        float worldX = pos.x + rotatedX;
+        float worldY = pos.y + rotatedY;
+
+        // Преобразуем в пиксели
+        int screenX, screenY;
+        WorldToScreen(worldX, worldY, screenX, screenY);
+
+        pointsX[i] = (Sint16)screenX;
+        pointsY[i] = (Sint16)screenY;
+    }
+
+    // Рисуем полигон (только контур) - ИСПРАВЛЕНО
+    polygonRGBA(renderer, pointsX.data(), pointsY.data(), count,
+        color.r, color.g, color.b, color.a);
+}
+
+/**
+ * Отрисовывает все фикстуры тела
+ *
+ * @param renderer SDL_Renderer
+ * @param body Физическое тело
+ * @param color Цвет
+ */
+void DrawBody(SDL_Renderer* renderer, b2Body* body, Color color) {
+    // Проходим по всем фикстурам
+    for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()) {
+        if (f->GetType() == b2Shape::e_circle) {
+            DrawCircle(renderer, body, f, color);
+        }
+        else if (f->GetType() == b2Shape::e_polygon) {
+            DrawPolygon(renderer, body, f, color);
+        }
+    }
+}
+
+/**
+ * Отрисовывает все тела в мире
+ *
+ * @param renderer SDL_Renderer
+ * @param world Физический мир
+ */
+void DrawWorld(SDL_Renderer* renderer, b2World* world) {
+    // Проходим по всем телам
+    for (b2Body* body = world->GetBodyList(); body; body = body->GetNext()) {
+        // Выбираем цвет по типу тела
+        Color color;
+        if (body->GetType() == b2_staticBody) {
+            color = COLOR_GRAY;
+        }
+        else if (body->GetType() == b2_dynamicBody) {
+            color = COLOR_GREEN;
+        }
+        else { // kinematic
+            color = COLOR_BLUE;
+        }
+
+        DrawBody(renderer, body, color);
+    }
+}
 int main(int argc, char* argv[]) {
-    // ====== ИНИЦИАЛИЗАЦИЯ SDL ======
+    // --- ИНИЦИАЛИЗАЦИЯ SDL ---
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return 1;
     }
 
+    // --- СОЗДАНИЕ ОКНА ---
     SDL_Window* window = SDL_CreateWindow(
-        "Box2D + SDL2 Test",
+        "Box2D Physics Demo",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        800, 600,
+        800,
+        600,
         SDL_WINDOW_SHOWN
     );
 
     if (!window) {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
         SDL_Quit();
         return 1;
     }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    // --- СОЗДАНИЕ РЕНДЕРЕРА ---
+    SDL_Renderer* renderer = SDL_CreateRenderer(
+        window,
+        -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+    );
+
     if (!renderer) {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        SDL_Log("SDL_CreateRenderer failed: %s", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
     }
 
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+    // --- СОЗДАНИЕ МИРА BOX2D ---
+    b2Vec2 g(0.0f, -10.0f);
+    b2World world(g);
 
-    std::cout << "Box2D + SDL2 успешно инициализированы!" << std::endl;
+    b2BodyDef wall_def;
+    wall_def.type = b2_staticBody;
+    wall_def.position = b2Vec2(0, 8);
+    b2Body* wall = world.CreateBody(&wall_def);
 
-    // ====== ИНИЦИАЛИЗАЦИЯ BOX2D ======
-    // Создаем физический мир с гравитацией (0, -10) м/с²
-    b2Vec2 gravity(0.0f, -10.0f);
-    b2World world(gravity);
+    b2PolygonShape wall_shape;
+    wall_shape.SetAsBox(5, 0.5);
 
-    // ====== СОЗДАЕМ ЗЕМЛЮ (статическое тело) ======
-    b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, -5.0f); // немного ниже центра
-    b2Body* groundBody = world.CreateBody(&groundBodyDef);
+    b2FixtureDef wallf;
+    wallf.shape = &wall_shape;
+    wallf.restitution = 1.0f;
 
-    b2PolygonShape groundBox;
-    groundBox.SetAsBox(10.0f, 1.0f); // 10 метров в ширину, 1 метр в высоту
+    wall->CreateFixture(&wallf);
 
-    b2FixtureDef groundFixtureDef;
-    groundFixtureDef.shape = &groundBox;
-    groundFixtureDef.friction = 0.5f;
-    groundBody->CreateFixture(&groundFixtureDef);
-
-    std::cout << "Земля создана" << std::endl;
-
-    // ====== СОЗДАЕМ ПАДАЮЩИЙ КВАДРАТ (динамическое тело) ======
     b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody; // динамическое тело
-    bodyDef.position.Set(0.0f, 3.0f); // выше земли
-    bodyDef.angle = 10;
+    bodyDef.type = b2_dynamicBody;
+
+    bodyDef.position.Set(0, 0);
+
     b2Body* body = world.CreateBody(&bodyDef);
 
-    b2PolygonShape dynamicBox;
-    dynamicBox.SetAsBox(0.5f, 0.5f); // 0.5x0.5 метра
+    b2CircleShape circleShape;
+    circleShape.m_radius = 0.5f;
 
     b2FixtureDef fixtureDef;
-    fixtureDef.shape = &dynamicBox;
-    fixtureDef.density = 1.0f;     // плотность
-    fixtureDef.friction = 0.3f;    // трение
-    fixtureDef.restitution = 1.0; // упругость (отскок)
+    fixtureDef.shape = &circleShape;
+    fixtureDef.density = 1.0f;
+    fixtureDef.restitution = 0.8f;
+
     body->CreateFixture(&fixtureDef);
-    body->SetLinearVelocity(b2Vec2(5.0f, 0.0f));
+    body->SetLinearVelocity(b2Vec2(3, -3));
+   
+    b2DistanceJointDef djointDef;
+    djointDef.bodyA = wall;
+    djointDef.bodyB = body;
+    djointDef.localAnchorA = b2Vec2(0, 0);  // локальная точка на стене
+    djointDef.localAnchorB = b2Vec2(0, 0);  // локальная точка на теле
+    djointDef.length = 8.0f;  // явно задаём длину
+    djointDef.stiffness = 5.0f;
+    djointDef.damping = 0;
 
-    std::cout << "Падающий квадрат создан" << std::endl;
+    auto djoint = (b2DistanceJoint*)world.CreateJoint(&djointDef);
 
-    // ====== ГЛАВНЫЙ ЦИКЛ ======
-    bool quit = false;
-    SDL_Event e;
-    const float timeStep = 1.0f / 60.0f;
-    const int velocityIterations = 6;
-    const int positionIterations = 2;
 
-    // Для измерения FPS
-    int frameCount = 0;
-    Uint32 startTime = SDL_GetTicks();
 
-    while (!quit) {
-        // Обработка событий
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
+    // --- ИГРОВОЙ ЦИКЛ ---
+    bool running = true;
+    SDL_Event event;
+
+    while (running) {
+        // --- ОБРАБОТКА СОБЫТИЙ ---
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
             }
-            // Нажатие пробела для сброса позиции
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE) {
-                body->SetTransform(b2Vec2(0.0f, 3.0f), 0.0f);
-                body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-                body->SetAngularVelocity(0.0f);
-                std::cout << "Позиция сброшена!" << std::endl;
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    running = false;
+                }
             }
         }
 
-        // Шаг физики
-        world.Step(timeStep, velocityIterations, positionIterations);
+        // --- ШАГ ФИЗИКИ ---
+        world.Step(1.0f / 60.0f, 16, 6);
 
-        // Получаем позицию и угол тела
-        b2Vec2 position = body->GetPosition();
-        float angle = body->GetAngle();
-
-        // Очищаем экран
-        SDL_SetRenderDrawColor(renderer, 40, 40, 60, 255);
+        // --- ОЧИСТКА ЭКРАНА (ОБЯЗАТЕЛЬНО ПЕРВЫМ!) ---
+        SDL_SetRenderDrawColor(renderer, 30, 30, 40, 255);
         SDL_RenderClear(renderer);
 
-        // ====== ОТРИСОВКА ЗЕМЛИ ======
-        SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
-        SDL_FPoint groundPos = Box2DToSDL(0.0f, -5.0f, windowWidth, windowHeight);
-        SDL_Rect groundRect = {
-            (int)(groundPos.x - 10.0f * SCALE),
-            (int)(groundPos.y - 1.0f * SCALE),
-            (int)(20.0f * SCALE),
-            (int)(2.0f * SCALE)
-        };
-        SDL_RenderFillRect(renderer, &groundRect);
+        // --- ОТЛАДОЧНАЯ СЕТКА (опционально) ---
+        // Рисуем оси координат
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
 
-        // ====== ОТРИСОВКА КВАДРАТА ======
-        // Преобразуем координаты Box2D в SDL
-        SDL_FPoint sdlPos = Box2DToSDL(position.x, position.y, windowWidth, windowHeight);
+        // Горизонтальная линия (ось X)
+        SDL_RenderDrawLine(renderer, 0, 300, 800, 300);
 
-        // Создаем матрицу поворота для отрисовки
-        SDL_FPoint center = { 0.5f * SCALE, 0.5f * SCALE };
-        SDL_FPoint corners[4] = {
-            { -0.5f * SCALE, -0.5f * SCALE },
-            {  0.5f * SCALE, -0.5f * SCALE },
-            {  0.5f * SCALE,  0.5f * SCALE },
-            { -0.5f * SCALE,  0.5f * SCALE }
-        };
+        // Вертикальная линия (ось Y)
+        SDL_RenderDrawLine(renderer, 400, 0, 400, 600);
 
-        // Поворачиваем и смещаем углы
-        SDL_FPoint rotatedCorners[4];
-        for (int i = 0; i < 4; i++) {
-            float cosA = cosf(angle);
-            float sinA = sinf(angle);
-            rotatedCorners[i].x = sdlPos.x + (corners[i].x * cosA - corners[i].y * sinA);
-            rotatedCorners[i].y = sdlPos.y + (corners[i].x * sinA + corners[i].y * cosA);
-        }
+        // Красная точка в центре (пиксель)
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderDrawPoint(renderer, 400, 300);
 
-        // Рисуем квадрат
-        SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
-        SDL_RenderDrawLineF(renderer, rotatedCorners[0].x, rotatedCorners[0].y,
-            rotatedCorners[1].x, rotatedCorners[1].y);
-        SDL_RenderDrawLineF(renderer, rotatedCorners[1].x, rotatedCorners[1].y,
-            rotatedCorners[2].x, rotatedCorners[2].y);
-        SDL_RenderDrawLineF(renderer, rotatedCorners[2].x, rotatedCorners[2].y,
-            rotatedCorners[3].x, rotatedCorners[3].y);
-        SDL_RenderDrawLineF(renderer, rotatedCorners[3].x, rotatedCorners[3].y,
-            rotatedCorners[0].x, rotatedCorners[0].y);
+        // --- ОТРИСОВКА МИРА ---
+        DrawWorld(renderer, &world);
 
-        // Заливаем квадрат цветом
-        SDL_Vertex vertices[4];
-        SDL_Color color = { 255, 100, 100, 180 };
-        for (int i = 0; i < 4; i++) {
-            vertices[i].position = rotatedCorners[i];
-            vertices[i].color = color;
-        }
-        SDL_RenderGeometry(renderer, nullptr, vertices, 4, nullptr, 0);
-
-        // ====== ОТРИСОВКА ИНФОРМАЦИИ ======
-        // Показываем позицию и FPS в заголовке окна
-        frameCount++;
-        Uint32 currentTime = SDL_GetTicks();
-        if (currentTime - startTime >= 1000) {
-            std::string title = "Box2D + SDL2 | FPS: " + std::to_string(frameCount) +
-                " | Pos: (" + std::to_string(position.x).substr(0, 4) +
-                ", " + std::to_string(position.y).substr(0, 4) + ")";
-            SDL_SetWindowTitle(window, title.c_str());
-            frameCount = 0;
-            startTime = currentTime;
-        }
-
-        // Обновляем экран
+        // --- ОБНОВЛЕНИЕ ЭКРАНА ---
         SDL_RenderPresent(renderer);
 
-        // Небольшая задержка для экономии CPU
+        // --- ЗАДЕРЖКА ---
         SDL_Delay(16);
+        b2Vec2 pos = body->GetPosition();
+        float length = djoint->GetLength();
+        float force = djoint->GetReactionForce(60.0f).Length();
     }
 
-    // ====== ОЧИСТКА ======
+    // --- ОЧИСТКА РЕСУРСОВ ---
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
-    std::cout << "Программа завершена" << std::endl;
     return 0;
 }

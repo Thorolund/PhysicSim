@@ -38,12 +38,20 @@
 <br>├── main.cpp # Точка входа
 <br>└── README.md
 
-## Модули
+## Logger
 
-### Logger
+## Physic
+### Physic/ParameterizeBody
+**Зависимости:** box2d, logger.h
 
-### Graphic
+**Содержание:**
+- `class ParamBody` — обёртка над b2Body с вычислением ускорений
+  - `ParamBody()` — конструктор, создаёт тело без фикстур
+  - `~ParamBody()` — деструктор, удаляет тело из мира
+  - `AddFixture()` — добавление одной фикстуры к телу
+  - `GetLinearAcceleration()` — вычисление линейного ускорения
+  - `GetAngleAcceleration()` — вычисление углового ускорения
+  - `UpdatePrevVelocites()` — обновление сохранённых скоростей
+## Graphic
 
-### UI
-
-### Physic
+## UI

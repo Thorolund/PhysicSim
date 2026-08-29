@@ -19,11 +19,23 @@
     <Filter Include="Исходные файлы\Logger">
       <UniqueIdentifier>{43707e67-c557-46f1-9fca-1ae0b1bca829}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\Math">
-      <UniqueIdentifier>{f6819af2-12f2-405b-a13a-e1d953317049}</UniqueIdentifier>
+    <Filter Include="Исходные файлы\Physic">
+      <UniqueIdentifier>{d5296ac0-9ffc-4032-9e30-9e6ef29f07c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Math">
-      <UniqueIdentifier>{8299245e-060c-4ffb-a940-19ca0b20f1d3}</UniqueIdentifier>
+    <Filter Include="Исходные файлы\Graphic">
+      <UniqueIdentifier>{23a8c5a8-c25b-416e-9f2f-65190e029c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\UI">
+      <UniqueIdentifier>{d4bba544-e692-4104-a693-8785ff4752fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Physic">
+      <UniqueIdentifier>{f87b6250-ad36-4ea1-a937-b82e1537c78d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Graphic">
+      <UniqueIdentifier>{440c3466-81e3-471d-9b4d-fd7f579094f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\UI">
+      <UniqueIdentifier>{281a3cd2-ec9d-49da-9dff-f3996c046cda}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,16 +45,25 @@
     <ClCompile Include="logger.cpp">
       <Filter>Исходные файлы\Logger</Filter>
     </ClCompile>
-    <ClCompile Include="vec.cpp">
-      <Filter>Исходные файлы\Math</Filter>
+    <ClCompile Include="ParameterizeBody.h">
+      <Filter>Файлы заголовков\Physic</Filter>
+    </ClCompile>
+    <ClCompile Include="ParameterizeBody.cpp">
+      <Filter>Исходные файлы\Physic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logger.h">
       <Filter>Файлы заголовков\Logger</Filter>
     </ClInclude>
-    <ClInclude Include="vec.h">
-      <Filter>Файлы заголовков\Math</Filter>
+    <ClInclude Include="Force.h">
+      <Filter>Файлы заголовков\Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="BodyForce.h">
+      <Filter>Файлы заголовков\Physic</Filter>
+    </ClInclude>
+    <ClInclude Include="Collector.h">
+      <Filter>Файлы заголовков\Physic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

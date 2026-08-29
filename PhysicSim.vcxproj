@@ -169,11 +169,14 @@
   <ItemGroup>
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="vec.cpp" />
+    <ClCompile Include="ParameterizeBody.cpp" />
+    <ClCompile Include="ParameterizeBody.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BodyForce.h" />
+    <ClInclude Include="Collector.h" />
+    <ClInclude Include="Force.h" />
     <ClInclude Include="logger.h" />
-    <ClInclude Include="vec.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

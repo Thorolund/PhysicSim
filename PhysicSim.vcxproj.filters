@@ -51,6 +51,9 @@
     <ClCompile Include="ParameterizeBody.cpp">
       <Filter>Исходные файлы\Physic</Filter>
     </ClCompile>
+    <ClCompile Include="Force.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logger.h">

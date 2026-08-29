@@ -41,7 +41,7 @@
 ## Logger
 
 ## Physic
-### Physic/ParameterizeBody
+### ParameterizeBody
 **Зависимости:** box2d, logger.h
 
 **Содержание:**
@@ -52,6 +52,14 @@
   - `GetLinearAcceleration()` — вычисление линейного ускорения
   - `GetAngleAcceleration()` — вычисление углового ускорения
   - `UpdatePrevVelocites()` — обновление сохранённых скоростей
+
+### Force
+**Зависимости:** box2d
+
+**Содержание:**
+- `class Force` — описание силы для приложения к телу
+  - `Force()` — конструктор, создаёт силу с вектором, флагом типа, именем и точкой приложения
+  - `GetName()` — возвращает имя силы
 ## Graphic
 
 ## UI

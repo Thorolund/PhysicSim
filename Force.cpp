@@ -1,5 +1,12 @@
 #include "Force.h"
 
+Force::Force() {
+	fVec = b2Vec2(0, 0);
+	isLocal = true;
+	name = "None";
+	pointAttach = b2Vec2(0, 0);
+}
+
 Force::Force(b2Vec2 vec,
 			 bool isLocal_,
 			 std::string name_,

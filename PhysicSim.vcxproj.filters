@@ -52,7 +52,10 @@
       <Filter>Исходные файлы\Physic</Filter>
     </ClCompile>
     <ClCompile Include="Force.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Physic</Filter>
+    </ClCompile>
+    <ClCompile Include="BodyForce.cpp">
+      <Filter>Исходные файлы\Physic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
